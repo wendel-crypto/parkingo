@@ -11,8 +11,8 @@ C = {
 'lede': ['A parking app for Miami, dressed in neon. Find a garage from Brickell to Lincoln Road, reserve a bay, follow the route, check in with a QR pass, add time and keep every receipt. Taken from Figma wireframes to a working prototype.',
          'Una app de estacionamiento para Miami, vestida de neón. Encuentra un garaje de Brickell a Lincoln Road, reserva un espacio, sigue la ruta, haz el check-in con un pase QR, agrega tiempo y guarda cada recibo. De wireframes en Figma a un prototipo funcional.',
          'Um app de estacionamento para Miami, vestido de neon. Encontre uma garagem de Brickell à Lincoln Road, reserve uma vaga, siga a rota, faça o check-in com um passe QR, adicione tempo e guarde cada recibo. De wireframes no Figma a um protótipo funcional.'],
-'b1': ['Try the prototype ↓', 'Prueba el prototipo ↓', 'Teste o protótipo ↓'], 'b2': ['Full screen', 'Pantalla completa', 'Tela cheia'],
-'b3': ['View the code ↗', 'Ver el código ↗', 'Ver o código ↗'], 'open': ['Open the live prototype', 'Abrir el prototipo en vivo', 'Abrir o protótipo ao vivo'],
+'b1': ['Try the prototype ↓', 'Prueba el prototipo ↓', 'Teste o protótipo ↓'], 'b2': ['Open on its own page ↗', 'Abrir en su propia página ↗', 'Abrir em página própria ↗'],
+'b3': ['View the code ↗', 'Ver el código ↗', 'Ver o código ↗'], 'open': ['Open the live prototype page', 'Abrir la página del prototipo en vivo', 'Abrir a página do protótipo ao vivo'],
 'close': ['Close ✕', 'Cerrar ✕', 'Fechar ✕'], 'ovt': ['Parkin’go · live prototype', 'Parkin’go · prototipo en vivo', 'Parkin’go · protótipo ao vivo'],
 'all': ['All cases', 'Todos los casos', 'Todos os cases'],
 'f1': ['Screens in the app', 'Pantallas en la app', 'Telas no app'], 'f2': ['Garages to search', 'Garajes para buscar', 'Garagens para buscar'], 'f3': ['Languages', 'Idiomas', 'Idiomas'], 'f4': ['File, no build step', 'Archivo, sin compilación', 'Arquivo, sem build'],
@@ -128,7 +128,7 @@ h1{{font:800 clamp(38px,10vw,84px)/1 Syne,sans-serif;letter-spacing:-.03em;margi
 h2{{font:700 clamp(26px,3.6vw,38px)/1.1 Syne,sans-serif;letter-spacing:-.02em;margin:0 0 18px;text-wrap:balance}}
 .hero{{padding:72px 0 40px}}.lede{{max-width:660px;color:#c9c9c3;font-size:19px}}
 .back{{font:500 12px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);text-decoration:none}}
-.btns{{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}}.btn{{display:inline-block;padding:13px 20px;border-radius:6px;border:1px solid #3a3a3a;text-decoration:none;font-weight:600;font-size:15px;background:none}}.btn.p{{background:var(--lime);color:#080808;border-color:var(--lime)}}
+.btns{{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}}.mopen{{text-decoration:none}}.btn{{display:inline-block;padding:13px 20px;border-radius:6px;border:1px solid #3a3a3a;text-decoration:none;font-weight:600;font-size:15px;background:none}}.btn.p{{background:var(--lime);color:#080808;border-color:var(--lime)}}
 .cover{{margin-top:44px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}}.cover img{{display:block;width:100%;height:auto}}
 .facts{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:24px 0 0}}
 .facts div{{background:var(--panel);padding:22px}}.facts b{{display:block;font:800 34px Syne,sans-serif;color:var(--lime);letter-spacing:-.02em}}.facts span{{font:500 11px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}}
@@ -158,7 +158,7 @@ section{{padding:64px 0;border-top:1px solid var(--line)}}
 .sw{{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}}.sw div{{width:92px}}.sw i{{display:block;height:56px;border-radius:8px;border:1px solid #2a2a2a}}.sw span{{font:500 11px 'JetBrains Mono',monospace;color:var(--mute);display:block;margin-top:6px}}
 .tags{{display:flex;flex-wrap:wrap;gap:8px}}.tags span{{font:500 12px 'JetBrains Mono',monospace;border:1px solid #333;border-radius:999px;padding:7px 12px;color:#c9c9c3}}
 footer{{border-top:1px solid var(--line);padding:36px 0 56px;color:var(--mute);font-size:14px}}footer .wrap{{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}}
-@media(max-width:979px){{.play{{grid-template-columns:1fr}}.device{{display:none}}.mopen{{display:block}}#full{{display:none}}.gal{{grid-template-columns:1fr}}.stage{{max-width:340px;margin:0 auto}}.list{{grid-template-columns:1fr 1fr}}}}
+@media(max-width:979px){{.play{{grid-template-columns:1fr}}.device{{display:none}}.mopen{{display:block}}.gal{{grid-template-columns:1fr}}.stage{{max-width:340px;margin:0 auto}}.list{{grid-template-columns:1fr 1fr}}}}
 @media(max-width:820px){{.two{{grid-template-columns:1fr;gap:20px}}.facts{{grid-template-columns:repeat(2,minmax(0,1fr))}}.list{{grid-template-columns:1fr}}.hide-m{{display:none}}.hero{{padding:44px 0 28px}}section{{padding:44px 0}}.thumbs{{gap:8px}}.boards a{{height:220px}}}}
 @media(max-width:450px){{nav .cta{{padding:9px 12px}}}}
 </style></head><body>
@@ -169,7 +169,7 @@ footer{{border-top:1px solid var(--line);padding:36px 0 56px;color:var(--mute);f
 <p class="eyebrow" style="margin-top:28px" data-k="eyebrow">{e('eyebrow')}</p>
 <h1>Parkin<em>’go</em></h1>
 <p class="lede" data-k="lede">{e('lede')}</p>
-<div class="btns"><a class="btn p" href="#try" data-k="b1">{e('b1')}</a><button class="btn" id="full" data-k="b2">{e('b2')}</button><a class="btn" href="https://github.com/wendel-crypto/parkingo" target="_blank" rel="noopener" data-k="b3">{e('b3')}</a></div>
+<div class="btns"><a class="btn p" href="#try" data-k="b1">{e('b1')}</a><a class="btn" id="full" href="/parkingo/prototype/" data-k="b2">{e('b2')}</a><a class="btn" href="https://github.com/wendel-crypto/parkingo" target="_blank" rel="noopener" data-k="b3">{e('b3')}</a></div>
 <div class="cover"><img src="{R}cover.jpg" alt="Parkin’go explore, spot details, route, live session and statistics screens" width="1600" height="1000"></div>
 <div class="facts"><div><b>24</b>{k('f1')}</div><div><b>5</b>{k('f2')}</div><div><b>3</b>{k('f3')}</div><div><b>1</b>{k('f4')}</div></div>
 </div>
@@ -179,7 +179,7 @@ footer{{border-top:1px solid var(--line);padding:36px 0 56px;color:var(--mute);f
 {k('te','p','eyebrow')}{k('th','h2')}
 <p style="color:#c9c9c3;max-width:520px" data-k="tp">{e('tp')}</p>
 <div class="jump" id="jump">{jump}</div>
-<button class="btn p mopen" id="openm" data-k="open">{e('open')}</button>
+<a class="btn p mopen" id="openm" href="/parkingo/prototype/" data-k="open">{e('open')}</a>
 {k('note','p','note')}
 </div>
 <div class="device"><iframe id="app" title="Parkin’go interactive prototype"></iframe></div>
@@ -220,7 +220,7 @@ function loadDesk(){{if(desk.matches&&!fr.getAttribute('src'))fr.src=APP+'&lang=
 function openOv(go){{if(!ovf.getAttribute('src'))ovf.src=APP+'&lang='+LG[li]+(go?'&screen='+go:'');else if(go)send(ovf,{{mr:'go',v:go}});ov.hidden=false;document.body.style.overflow='hidden';document.getElementById('ovx').focus()}}
 function closeOv(){{ov.hidden=true;document.body.style.overflow=''}}
 [fr,ovf].forEach(f=>f.addEventListener('load',()=>send(f,{{mr:'lang',v:LG[li]}})));
-document.getElementById('full').onclick=()=>openOv();document.getElementById('openm').onclick=()=>openOv();document.getElementById('ovx').onclick=closeOv;
+document.getElementById('ovx').onclick=closeOv;
 ov.addEventListener('click',e=>{{if(e.target===ov)closeOv()}});
 th.forEach(t=>t.onclick=()=>show(+t.dataset.i));document.getElementById('prev').onclick=()=>show(cur-1);document.getElementById('next').onclick=()=>show(cur+1);
 document.addEventListener('keydown',e=>{{if(!ov.hidden){{if(e.key==='Escape')closeOv();return}}if(e.key==='ArrowRight')show(cur+1);if(e.key==='ArrowLeft')show(cur-1)}});
@@ -235,3 +235,72 @@ S.forEach(s=>{{new Image().src=s[0]}});applyLang();
 (root / 'site').mkdir(exist_ok=True)
 (root / 'site' / 'case-page.html').write_text(page, encoding='utf-8')
 print('site/case-page.html', len(page), 'bytes')
+
+# ---------------- dedicated live prototype page ----------------
+PC = {
+'title': ['Parkin’go · Live prototype', 'Parkin’go · Prototipo en vivo', 'Parkin’go · Protótipo ao vivo'],
+'back': ['← Back to the case study', '← Volver al caso de estudio', '← Voltar ao estudo de caso'],
+'eyebrow': ['Live prototype · Parkin’go', 'Prototipo en vivo · Parkin’go', 'Protótipo ao vivo · Parkin’go'],
+'h': ['Park in Miami, on a phone that works.', 'Estaciona en Miami, en un teléfono que funciona.', 'Estacione em Miami, em um celular que funciona.'],
+'p': ['A working build, not a video. Sign in with the demo details, search five invented garages, tap a map pin, reserve a bay, follow the route, check in with a QR pass, add time and check out.',
+      'Una versión funcional, no un video. Entra con los datos de prueba, busca cinco garajes inventados, toca un pin del mapa, reserva un espacio, sigue la ruta, haz check-in con QR, añade tiempo y sal.',
+      'Uma versão funcional, não um vídeo. Entre com os dados de teste, busque cinco garagens fictícias, toque em um pin do mapa, reserve uma vaga, siga a rota, faça check-in com QR, adicione tempo e finalize.'],
+'jt': ['Jump to a screen', 'Ir a una pantalla', 'Ir para uma tela'],
+'restart': ['Restart the demo', 'Reiniciar la demo', 'Reiniciar a demo'],
+'case': ['Read the case study', 'Leer el caso de estudio', 'Ler o estudo de caso'],
+'code': ['View the code ↗', 'Ver el código ↗', 'Ver o código ↗'],
+'note': C['note'],
+}
+for key in ('j1','j1s','j2','j2s','j3','j3s','j4','j4s','j5','j5s','j6','j6s'):
+    PC[key] = C[key]
+pk = lambda key, tag='span', cls='': f'<{tag}{(" class=" + chr(34) + cls + chr(34)) if cls else ""} data-k="{key}">{html.escape(PC[key][0], quote=False)}</{tag}>'
+
+import re
+css = re.search(r'<style>(.*?)</style>', page, re.S).group(1)
+pjump = ''.join(f'<button data-go="{g}"><span class="n">{i:02d}</span><span>{pk("j%d" % i, "b")}<small data-k="j{i}s">{html.escape(PC["j%ds" % i][0], quote=False)}</small></span></button>' for i, g in enumerate(JUMPS, 1))
+extra = """
+.pp{padding:40px 0 72px}.pp .wrap{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:64px;align-items:center}
+.pp h1{font-size:clamp(30px,3.9vw,50px);margin:10px 0 18px}.pp .lede{color:#c9c9c3;max-width:540px;margin:0}
+.pp .device iframe{display:block}.pp .jt{margin:30px 0 0;font:500 12px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.pp .jump{margin-top:12px}.pp .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.jump .n{font:500 12px 'JetBrains Mono',monospace;color:var(--lime)}
+@media(max-width:979px){.pp .wrap{grid-template-columns:1fr;gap:28px}.pp .device{width:100%;max-width:410px;height:auto;margin:0 auto;padding:8px;border-radius:44px}.pp .device iframe{width:100%;height:min(780px,calc(100svh - 150px));min-height:560px;border-radius:36px}.pp .jump{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.pp .jump{grid-template-columns:1fr}}
+"""
+proto = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{html.escape(PC["title"][0])}</title>
+<meta name="description" content="Try the Parkin’go parking app prototype for Miami: search garages, reserve a bay, follow the route, check in with a QR pass, extend time and review receipts.">
+<meta property="og:title" content="Parkin’go — live prototype"><meta property="og:image" content="{R}cover.jpg">
+<link rel="canonical" href="https://www.wendelfreitas.com/parkingo/prototype/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>{css}{extra}</style></head><body>
+<header><div class="wrap"><a class="logo" href="/">W<span>F</span></a><nav><a class="hide-m" href="/">Home</a><a class="hide-m" href="/services">Services</a><a href="/cases" aria-current="page">Cases</a><a class="hide-m" href="/about">About</a><a class="cta" href="/contact">Get Free Audit →</a></nav></div></header>
+<main><section class="pp"><div class="wrap"><div>
+<a class="back" href="/parkingo/" data-k="back">{html.escape(PC["back"][0])}</a>
+<p class="eyebrow" style="margin-top:26px" data-k="eyebrow">{html.escape(PC["eyebrow"][0])}</p>
+<h1 data-k="h">{html.escape(PC["h"][0])}</h1>
+<p class="lede" data-k="p">{html.escape(PC["p"][0])}</p>
+<p class="jt" data-k="jt">{html.escape(PC["jt"][0])}</p>
+<div class="jump" id="jump">{pjump}</div>
+<div class="acts"><button class="btn" id="rs" data-k="restart">{html.escape(PC["restart"][0])}</button><a class="btn" href="/parkingo/" data-k="case">{html.escape(PC["case"][0])}</a><a class="btn" href="https://github.com/wendel-crypto/parkingo" target="_blank" rel="noopener" data-k="code">{html.escape(PC["code"][0])}</a></div>
+<p class="note" data-k="note" style="margin-top:20px">{html.escape(PC["note"][0])}</p>
+</div><div class="device"><iframe id="app" title="Parkin’go interactive prototype" allow="clipboard-write"></iframe></div></div></section></main>
+<script>
+const C={json.dumps(PC, ensure_ascii=False)},LG=['en','es','pt'];
+const APP='/parkingo/app/?embed';
+const LI=()=>{{let l=document.documentElement.lang||'en';try{{if(!window.__wfSite)l=localStorage.getItem('wf-lang')||l}}catch(e){{}}l=l.slice(0,2);return l==='es'?1:l==='pt'?2:0}};
+let li=LI();const fr=document.getElementById('app');
+const send=m=>{{try{{fr.contentWindow.postMessage(m,'*')}}catch(e){{}}}};
+function applyLang(){{li=LI();document.title=C.title[li];document.querySelectorAll('[data-k]').forEach(n=>{{const v=C[n.dataset.k][li];if(n.textContent!==v)n.textContent=v}});send({{mr:'lang',v:LG[li]}})}}
+fr.addEventListener('load',()=>send({{mr:'lang',v:LG[li]}}));
+fr.src=APP+'&lang='+LG[li];
+document.querySelectorAll('#jump button').forEach(b=>b.onclick=()=>{{document.querySelectorAll('#jump button').forEach(x=>x.classList.toggle('on',x===b));send({{mr:'go',v:b.dataset.go}})}});
+document.getElementById('rs').onclick=()=>{{document.querySelectorAll('#jump button').forEach(x=>x.classList.remove('on'));fr.src=APP+'&lang='+LG[li]}};
+new MutationObserver(applyLang).observe(document.documentElement,{{attributes:true,attributeFilter:['lang']}});applyLang();
+</script>
+<script src="/wf-site.v13.js" defer></script>
+</body></html>
+'''
+(root / 'site' / 'prototype-page.html').write_text(proto, encoding='utf-8')
+print('site/prototype-page.html', len(proto), 'bytes')

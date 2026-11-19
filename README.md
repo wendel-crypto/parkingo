@@ -63,6 +63,6 @@ To rebuild after editing `src/app.html`: `pip install segno && python3 scripts/b
 
 Everything is sample data and nothing is saved or sent. Parkin’go is not a real parking service. The five garages are invented; the streets and neighborhoods are real. The map is an illustration, not to scale. The QR code opens the case study.
 
-Photos are from [Unsplash](https://unsplash.com) by Zoshua Colah, Felipe Simo, Sergio Arteaga, Brice Cooper, Denys Kostyuchenko, Alin Gavriliuc and Blake Connally, reused from the Money Rescue build. They show real Miami buildings as neighborhood imagery only; none of them is a Parkin’go garage.
+Photos are from [Unsplash](https://unsplash.com): cars by Erik Mclean (hatchback), Freddy G (SUV), Daniil Velychko (motorcycle) and Rana Singh (pickup); the profile portrait by Ryan Hoffman; garages and places by Lai Man Nung (Brickell), Matt Alaniz (Bayfront), Jairo Gonzalez (Wynwood), Hector Falcon (Design District) and Zoshua Colah (Lincoln Road); sunset, palms and skyline images by Felipe Simo, Sergio Arteaga, Brice Cooper, Denys Kostyuchenko, Alin Gavriliuc and Blake Connally. None of the places is a Parkin’go garage, and the profile is an invented demo driver.
 
 Designed and directed by [Wendel de Freitas](https://www.wendelfreitas.com); written with Claude.
