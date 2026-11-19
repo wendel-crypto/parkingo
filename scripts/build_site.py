@@ -250,6 +250,7 @@ PC = {
 'case': ['Read the case study', 'Leer el caso de estudio', 'Ler o estudo de caso'],
 'code': ['View the code ↗', 'Ver el código ↗', 'Ver o código ↗'],
 'note': C['note'],
+'all': C['all'],
 }
 for key in ('j1','j1s','j2','j2s','j3','j3s','j4','j4s','j5','j5s','j6','j6s'):
     PC[key] = C[key]
@@ -286,6 +287,7 @@ proto = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta nam
 <div class="acts"><button class="btn" id="rs" data-k="restart">{html.escape(PC["restart"][0])}</button><a class="btn" href="/parkingo/" data-k="case">{html.escape(PC["case"][0])}</a><a class="btn" href="https://github.com/wendel-crypto/parkingo" target="_blank" rel="noopener" data-k="code">{html.escape(PC["code"][0])}</a></div>
 <p class="note" data-k="note" style="margin-top:20px">{html.escape(PC["note"][0])}</p>
 </div><div class="device"><iframe id="app" title="Parkin’go interactive prototype" allow="clipboard-write"></iframe></div></div></section></main>
+<footer><div class="wrap"><span>© 2026 Wendel Freitas · Miami</span><span><a href="/cases" data-k="all">{html.escape(PC["all"][0])}</a> · <a href="https://linkedin.com/in/wendel-de-freitas">LinkedIn</a> · <a href="https://github.com/wendel-crypto">GitHub</a></span></div></footer>
 <script>
 const C={json.dumps(PC, ensure_ascii=False)},LG=['en','es','pt'];
 const APP='/parkingo/app/?embed';
