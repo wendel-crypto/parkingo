@@ -1,0 +1,29 @@
+    <script>
+      // wf-case-parkingo: adds the Parkin’go card to Cases > App; the case page is standalone HTML at /parkingo/
+      (function () {
+        var busy = false;
+        function sync() {
+          if (busy) return; busy = true;
+          try {
+            var card = document.getElementById('wf-parkingo-card');
+            var src = document.querySelector('a[href="/cases/rundate-miami"]');
+            if (!src) { if (card) card.remove(); return; }
+            if (card && card.parentElement === src.parentElement) return;
+            if (card) card.remove();
+            card = src.cloneNode(true); card.id = 'wf-parkingo-card'; card.setAttribute('href', '/parkingo/');
+            var media = card.children[0], body = card.children[1];
+            if (media) { media.innerHTML = '<img src="https://raw.githubusercontent.com/wendel-crypto/parkingo/main/docs/thumb.webp" alt="Parkin’go app screens" style="width:100%;height:100%;object-fit:cover;display:block">'; }
+            if (body) {
+              var k = body.children;
+              if (k[0]) k[0].textContent = 'Product concept · Mobile app · Mobility UX';
+              if (k[1]) k[1].textContent = 'Parkin’go';
+              if (k[2]) k[2].textContent = 'A parking app for Miami in a Vice City look: a neon map with prices, search and favorites, reserved bays, a route, QR check-in, a live timer, extensions and receipts. From Figma wireframes to a working prototype in English, Spanish and Portuguese.';
+              if (k[3] && k[3].children.length) { var tags = ['Mobile app', 'UX / UI', 'Figma', 'Prototype', 'Mobility']; var t0 = k[3].children[0]; k[3].innerHTML = ''; tags.forEach(function (t) { var n = t0.cloneNode(false); n.textContent = t; k[3].appendChild(n); }); }
+            }
+            src.parentElement.appendChild(card);
+          } catch (e) {} finally { busy = false; }
+        }
+        function start() { new MutationObserver(sync).observe(document.body, { childList: true, subtree: true }); sync(); }
+        if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+      })();
+    </script>

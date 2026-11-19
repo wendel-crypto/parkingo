@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parkin'go · Parking in Miami (demo)</title>
+<meta name="description" content="Interactive prototype of Parkin'go, a parking app for Miami: find a garage, reserve a bay, follow the route, check in with a QR pass, extend time and review your sessions. Demo data only.">
+<meta name="theme-color" content="#0F0724">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Yellowtail&display=swap" rel="stylesheet">
+<style>
+/*__PHOTOS__*/
+:root{
+  --bg:#0F0724;--s1:#1A0F3A;--s2:#25164F;--line:rgba(255,255,255,.11);--ink:#FFF6FB;--mut:#BBABDD;--dim:#8474AD;
+  --pink:#FF2E97;--orange:#FF8A3D;--cyan:#1BE7FF;--teal:#00E5C3;--violet:#8B5CFF;--yellow:#FFD23F;--err:#FF6B81;
+  --sunset:linear-gradient(135deg,#FF2E97,#FF8A3D);--ocean:linear-gradient(135deg,#1BE7FF,#8B5CFF);--dusk:linear-gradient(160deg,#3B1A7A,#B4237F 60%,#FF7A3D)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{color:var(--ink);font:400 15px/1.3 Outfit,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}button{background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.num{font-variant-numeric:tabular-nums}.script{font-family:Yellowtail,cursive;font-weight:400}
+.phone{position:fixed;inset:0;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.status,.home{display:none}
+@media(min-width:560px){
+  body:not(.embed):not(.bare){display:flex;align-items:center;justify-content:center;background:radial-gradient(800px 500px at 20% 100%,#FF2E97 0,transparent 60%),radial-gradient(900px 600px at 85% 0,#1BE7FF 0,transparent 55%),#0F0724}
+  body:not(.embed):not(.bare) .phone{position:relative;inset:auto;width:390px;height:min(844px,calc(100vh - 32px));border-radius:48px;box-shadow:0 0 0 10px #090314,0 0 0 11px #4A2C8F,0 0 60px rgba(255,46,151,.35)}
+  body:not(.embed):not(.bare) .status{display:flex}body:not(.embed):not(.bare) .home{display:block}
+  body:not(.embed):not(.bare) .phone{--st:38px;--hb:14px}
+}
+body.bare .status{display:flex}body.bare .home{display:block}body.bare .phone{--st:38px;--hb:14px}
+.status{position:absolute;top:0;left:0;right:0;z-index:30;height:44px;justify-content:space-between;align-items:center;padding:6px 27px 0;font-weight:600;font-size:15px;pointer-events:none}
+.home{position:absolute;left:50%;bottom:8px;width:130px;height:5px;margin-left:-65px;border-radius:3px;background:#fff;opacity:.85;z-index:60;pointer-events:none}
+.view{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:var(--st,0px);animation:fade .25s ease both}
+.view.full{padding-top:0}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}*{transition:none!important}}
+.hd{display:flex;align-items:center;gap:12px;padding:14px 18px 6px}
+.hd .bk{width:42px;height:42px;border-radius:14px;background:var(--s1);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.hd .tt{font-weight:600;font-size:17px;flex:1}
+.body{flex:1;min-height:0;overflow:auto;padding:8px 20px 20px;-webkit-overflow-scrolling:touch}
+.foot{padding:12px 20px calc(18px + var(--hb,0px));display:flex;flex-direction:column;gap:8px;background:linear-gradient(transparent,var(--bg) 30%)}
+.neon{font-weight:800;font-size:31px;line-height:1.08;letter-spacing:-.01em;margin:10px 0 6px;text-shadow:0 0 22px rgba(255,46,151,.55)}
+.sub{color:var(--mut);margin:0 0 16px;font-size:15px;line-height:1.4}
+h3{margin:18px 0 10px;font-size:16px;font-weight:700}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:18px;font-weight:700;font-size:16px;background:var(--sunset);color:#fff;box-shadow:0 8px 26px rgba(255,46,151,.35);text-align:center;width:100%}
+.btn:active{transform:scale(.98)}.btn.ghost{background:transparent;border:1.5px solid rgba(27,231,255,.55);color:var(--cyan);box-shadow:none}
+.btn.txt{background:none;box-shadow:none;color:var(--cyan);min-height:40px}.btn[disabled]{opacity:.45;box-shadow:none}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px}.sp{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px}
+.mut{color:var(--mut)}.dim{color:var(--dim)}.sm{font-size:13px}.b{font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:11.5px;font-weight:700;letter-spacing:.08em;background:rgba(27,231,255,.13);color:var(--cyan);border:1px solid rgba(27,231,255,.3)}
+.chip.ok{background:rgba(0,229,195,.13);color:var(--teal);border-color:rgba(0,229,195,.3)}.chip.pk{background:rgba(255,46,151,.14);color:#FF7FBF;border-color:rgba(255,46,151,.35)}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:rgba(27,231,255,.09);border:1px solid rgba(27,231,255,.22);color:#CFF8FF;font-size:13.5px;line-height:1.35}
+.note svg{color:var(--cyan);margin-top:1px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.logo i{width:38px;height:38px;border-radius:12px;background:var(--sunset);display:grid;place-items:center;box-shadow:0 0 18px rgba(255,46,151,.5);font-style:normal;font-weight:800;color:#fff}
+.logo b{font-family:Yellowtail,cursive;font-weight:400;font-size:28px;text-shadow:0 0 14px rgba(255,46,151,.6)}
+.hero{position:relative;border-radius:26px;overflow:hidden;background:var(--dusk) center/cover;min-height:230px;display:flex;align-items:flex-end;border:1px solid var(--line)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(15,7,36,.92))}
+.hero>div{position:relative;z-index:1;padding:16px 18px}
+.hero small{display:block;color:var(--teal);font-weight:700;letter-spacing:.12em;font-size:11px}
+.hero strong{font-size:26px;font-weight:800;text-shadow:0 0 18px rgba(255,46,151,.6)}
+.field{display:block;padding:10px 14px;border-radius:16px;background:var(--s1);border:1px solid var(--line);margin-bottom:10px}
+.field label{display:block;font-size:11.5px;color:var(--dim);margin-bottom:2px}
+.field div{font-weight:600;font-size:16px}
+.plate{background:#fff;color:#1a1033;border-radius:18px;padding:12px 18px 14px;border:3px solid #1a1033;position:relative;text-align:center}
+.plate small{display:block;font-weight:700;letter-spacing:.2em;font-size:11px;color:#C21B6D}
+.plate b{font-size:42px;font-weight:800;letter-spacing:.14em;line-height:1.1}
+.plate span{display:block;font-size:11px;color:#6a5b8e;letter-spacing:.08em}
+.pay{border-radius:22px;padding:18px;background:var(--dusk);position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(180,35,127,.35)}
+.pay .n{font-size:22px;letter-spacing:.14em;margin:22px 0 14px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{border-radius:20px;overflow:hidden;background:var(--s1);border:1.5px solid var(--line);text-align:left;display:flex;flex-direction:column}
+.tile[aria-pressed=true],.opt[aria-pressed=true]{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(27,231,255,.25),0 0 22px rgba(27,231,255,.25)}
+.tile .im{height:96px;display:grid;place-items:center;background:linear-gradient(150deg,#2a1560,#0f6a7a);color:var(--cyan)}
+.tile .im svg{width:78px;height:50px;fill:none;stroke:currentColor;stroke-width:2;filter:drop-shadow(0 0 8px currentColor)}
+.tile .tx{padding:10px 12px 12px}.tile b{display:block}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--s1);border:1px solid var(--line);width:100%}
+.ico{width:42px;height:42px;border-radius:13px;background:rgba(27,231,255,.12);color:var(--cyan);display:grid;place-items:center;flex:none}
+.ico.pk{background:rgba(255,46,151,.16);color:#FF7FBF}
+.item .g{flex:1;min-width:0}.item .g b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.price{font-weight:800;color:var(--teal);white-space:nowrap}
+.heart{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;color:var(--dim)}.heart.on{color:var(--pink)}.heart.on svg{fill:var(--pink)}
+.search{display:flex;align-items:center;gap:10px;padding:0 14px;height:50px;border-radius:16px;background:var(--s1);border:1px solid var(--line);margin-bottom:12px}
+.search input{flex:1;background:none;border:0;outline:0;min-width:0}
+.chips{display:flex;gap:8px;overflow:auto;padding-bottom:6px;margin-bottom:8px}
+.fc{padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--s1);font-weight:600;font-size:13.5px;white-space:nowrap}
+.fc[aria-pressed=true]{background:var(--sunset);border-color:transparent}
+.map{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#150a33}
+.map svg{display:block;width:100%;height:auto}
+.map .tag{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:700;letter-spacing:.1em;padding:4px 9px;border-radius:99px;background:rgba(15,7,36,.7);color:var(--cyan);border:1px solid rgba(27,231,255,.3)}
+.pin{cursor:pointer}
+.tabs{display:flex;justify-content:space-around;padding:8px 14px calc(8px + var(--hb,0px));background:rgba(26,15,58,.88);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--dim);padding:6px 18px;border-radius:16px}
+.tabs button[aria-current=page]{color:var(--cyan);background:rgba(27,231,255,.12)}
+.dark{background:linear-gradient(135deg,#1a0f3a,#0e5a72);border-radius:22px;padding:18px;border:1px solid var(--line);position:relative;overflow:hidden}
+.dark .k{color:var(--teal);font-weight:700;letter-spacing:.12em;font-size:11px}
+.dark .big{font-size:30px;font-weight:800;margin-top:4px}
+.opt{border-radius:18px;padding:16px;text-align:center;background:rgba(27,231,255,.1);border:1.5px solid rgba(27,231,255,.25);font-weight:800;font-size:20px}
+.opt small{display:block;font-size:12.5px;color:var(--cyan);font-weight:500;margin-top:2px}
+.opt[disabled]{opacity:.35}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.kv span:first-child{color:var(--mut)}
+.stars{display:flex;gap:8px}.stars button{flex:1;height:52px;border-radius:14px;background:var(--s1);border:1px solid var(--line);display:grid;place-items:center;color:var(--yellow)}
+.stars button.on svg{fill:var(--yellow)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:10px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;font-size:11px;color:var(--dim)}
+.bars i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:var(--ocean);min-height:3px;opacity:.75}.bars .hi i{background:var(--sunset);opacity:1}
+.seg{display:flex;gap:8px;margin-bottom:14px}.seg button{flex:1;padding:11px 0;text-align:center;border-radius:14px;border:1px solid var(--line);background:var(--s1);font-weight:600}
+.seg button[aria-pressed=true]{background:var(--sunset);border-color:transparent}
+.turn{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:var(--dusk);margin-bottom:12px;width:100%;box-shadow:0 10px 28px rgba(180,35,127,.35)}
+.qr{background:#fff;border-radius:18px;padding:14px;width:210px;margin:0 auto}.qr svg{display:block;width:100%;height:auto}
+.timer{font-size:44px;font-weight:800;text-align:center;letter-spacing:.02em;text-shadow:0 0 22px rgba(27,231,255,.6)}
+.sheet{position:absolute;inset:0;z-index:50;background:rgba(8,3,22,.7);display:flex;align-items:flex-end;animation:fade .2s both}
+.sheet>div{width:100%;background:var(--s1);border-radius:26px 26px 0 0;border:1px solid var(--line);padding:20px 20px calc(22px + var(--hb,0px));max-height:82%;overflow:auto}
+.big-bay{font-size:64px;font-weight:800;text-align:center;background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05}
+.prog{height:8px;border-radius:99px;background:var(--s2);overflow:hidden}.prog i{display:block;height:100%;background:var(--ocean);transition:width .4s}
+.toast{position:absolute;left:20px;right:20px;bottom:calc(96px + var(--hb,0px));z-index:70;padding:13px 16px;border-radius:16px;background:#0e2f3a;border:1px solid rgba(27,231,255,.5);color:#CFF8FF;font-weight:600;animation:fade .2s both;text-align:center}
+.lg{display:flex;gap:8px}.lg button{flex:1;padding:10px 0;border-radius:12px;text-align:center;border:1px solid var(--line);background:var(--s1);font-weight:700}.lg button[aria-pressed=true]{background:var(--ocean);color:#0F0724;border-color:transparent}
+.avatar{width:96px;height:96px;border-radius:28px;background:var(--sunset);display:grid;place-items:center;font-weight:800;font-size:38px;box-shadow:0 0 30px rgba(255,46,151,.5)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="status"><span id="clock">9:41</span><span>●●● 5G ▮</span></div>
+  <main class="view" id="view"></main>
+  <div id="over"></div>
+  <div class="home"></div>
+</div>
+<script>
+const q=new URLSearchParams(location.search);
+if(q.has('embed'))document.body.classList.add('embed');if(q.has('bare'))document.body.classList.add('bare');
+const $=s=>document.querySelector(s),view=$('#view');
+/* ---------- icons ---------- */
+const IC={
+ back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',p:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M10 17V8h3.2a2.5 2.5 0 0 1 0 5H10"/>',car:'<path d="M5 16V12l2-5h10l2 5v4M3 16h18M7 16v2M17 16v2"/><circle cx="8" cy="13.5" r=".6"/><circle cx="16" cy="13.5" r=".6"/>',
+ card:'<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/>',chart:'<path d="M5 20V10M12 20V4M19 20v-7"/>',chev:'<path d="m9 6 6 6-6 6"/>',check:'<path d="m5 12 5 5 9-10"/>',
+ receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/>',turn:'<path d="M5 20v-7a4 4 0 0 1 4-4h9M14 5l4 4-4 4"/>',pin:'<path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+ star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',heart:'<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.7A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
+ shield:'<path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',plus:'<path d="M12 5v14M5 12h14"/>',bolt:'<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',roof:'<path d="M3 11 12 4l9 7M6 10v10h12V10"/>',key:'<circle cx="8" cy="12" r="3.5"/><path d="M11.5 12H21M18 12v3"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',table:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M9 10v9"/>'
+};
+const ic=(n,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const VEH={hatch:'<path d="M6 40V30l8-14h30l10 12v12H6zM2 40h60"/><circle cx="18" cy="42" r="5"/><circle cx="46" cy="42" r="5"/><path d="M16 28h26"/>',
+ suv:'<path d="M6 40V26l6-10h34l10 12v12H6zM2 40h60"/><circle cx="18" cy="42" r="5"/><circle cx="46" cy="42" r="5"/><path d="M12 26h40"/>',
+ moto:'<circle cx="14" cy="38" r="9"/><circle cx="50" cy="38" r="9"/><path d="M14 38l10-18h14l12 18M24 20l-4-6h-6M34 28h10"/>',
+ other:'<path d="M6 38V22h34v16M40 28h12l6 10v0H40M2 38h60"/><circle cx="16" cy="42" r="5"/><circle cx="48" cy="42" r="5"/>'};
+const vsvg=k=>`<svg viewBox="0 0 64 52" aria-hidden="true">${VEH[k]}</svg>`;
+/* ---------- text ---------- */
+const L={
+en:{loc:'en-US',tag:'MIAMI',demo:'DEMO',pk:'THE PARKING APP',find:'Find a better spot.',intT:'Parking made simple',intS:'Find a bay, get directions and manage your parking from one place.',start:'Get started',
+ wcN:'Welcome',wcT:'Make every stop count',wcS:'Explore nearby garages and see where parking fits into your trip.',wcNote:'Try the experience with sample locations and payment details.',cont:'Continue',
+ soN:'Sign-in options',soT:'Welcome to Parkin’go',soS:'Use the demo account to explore the full parking experience.',withEmail:'Continue with email',asDemo:'Explore as a demo driver',soNote:'Demo accounts use prefilled details.',
+ emN:'Sign in',emT:'Sign in with email',emS:'The sample driver’s details are ready to use.',name:'Name',email:'Email',pass:'Password',emNote:'This prototype uses sample credentials.',emC:'Continue with demo account',
+ plN:'Vehicle setup',plT:'Enter your plate',plS:'Your license plate identifies the vehicle on the parking session.',state:'FLORIDA',plSam:'Sample license plate',plNote:'Sample driver and vehicle are prefilled.',plC:'Use this demo plate',
+ pyN:'Payment setup',pyT:'Add a payment method',pyS:'Review the demo card before you reserve a bay.',country:'Billing country',city:'City',us:'United States',pyNote:'Demo card only. No charges are processed.',pyC:'Use demo card',
+ vcN:'Vehicle categories',vcT:'Choose a vehicle type',vcS:'See the vehicle that will be used for your parking session.',hatch:'Hatchback',hatchS:'Compact car',suv:'SUV',suvS:'Larger vehicle',moto:'Motorcycle',motoS:'Two wheels',other:'Other vehicle',otherS:'Other vehicle types',useDef:'Use the default vehicle',
+ mvN:'My vehicles',mvT:'Your vehicle',mvS:'The selected vehicle will appear on your reservation.',active:'ACTIVE',chgV:'Change vehicle type',findP:'Find parking',
+ tEx:'Explore',tAc:'Activity',tPr:'Profile',fpT:'Find parking',searchPh:'Search nearby parking',closest:'Closest to you',seeAll:n=>`See all ${n} spots`,
+ srN:'Search',srT:'Nearby parking',srS:n=>`${n} demo locations near downtown Miami.`,avail:'Available locations',fAll:'All',fFav:'Favorites',fCov:'Covered',fEv:'EV charging',none:'No spots match. Try another search or filter.',
+ hr:'/ hr',away:m=>m>=1000?`${(m/1000).toFixed(1)} km away`:`${m} m away`,bays:n=>`${n} bays free`,
+ sdN:'Spot details',openD:'OPEN IN DEMO',closedD:'CLOSED',incl:'What’s included',i1:'Marked bays',i2:'QR check-in',iCov:'Covered parking',iEv:'EV charging',hours:'Hours',h24:'Open 24 hours',hUntil:h=>`Open until ${h}`,hClosed:h=>`Closed · opens ${h}`,
+ chooseBay:'Choose a parking bay',faved:'Added to favorites',unfaved:'Removed from favorites',isClosed:'This garage is closed right now.',
+ bayN:'Choose a bay',bayT:'Choose your bay',bayS:'Reserve an initial 60-minute stay.',avl:'Available',taken:'Taken',selBay:'Selected bay',sub:'Demo subtotal',bayNote:'Your parking time begins when you check in.',reserve:'Reserve and view route',
+ roN:'Route overview',roT:'Route to your spot',roS:'Follow the demo route to the garage entrance.',yourLoc:'Your location',yourLocV:'Downtown Miami',follow:'Follow the marked route',followS:'Illustrative directions',resBay:'Reserved parking bay',startD:'Start driving',
+ drN:'Driving directions',dest:'Destination',viewTrip:'View trip progress',t1:'Turn right ahead',t2:'Continue straight',t3:'Garage entrance ahead',in:m=>`In ${m} m`,nextStep:'Tap for the next step',
+ tpN:'Trip in progress',tpT:'On your way',tpS:'Your reserved bay is ready when you arrive.',eta:'Estimated arrival',arrived:'I’ve arrived',
+ arN:'Arrival',arT:t=>`You’re at ${t}`,arS:'Match the reserved bay to the number on site.',resv:'Reserved bay',toCheck:'Go to check-in',
+ ciN:'Check in',ciT:'Your parking pass',ciS:'Use this demo QR code to walk through check-in.',passL:'DEMO PASS',ciBay:'Reserved bay',ciH:'Check in to start your session',ciHs:m=>`${m} minutes from check-in`,ciC:'Start demo parking',
+ sesN:'Parking session',sesT:'Parking in progress',sesS:'Time left on your booking',extend:'Extend time',checkout:'Check out',
+ exN:'Extend time',exT:'Need more time?',exS:'Choose an extension for your original booking.',booked:'TIME BOOKED',half:'Half hour',hour:'One hour',selAdd:'Selected add-on',addCost:'Additional cost',exC:'Apply demo extension',exDone:'Time added to your booking',
+ coN:'Check out',coT:'Review your session',coS:'See the total and optionally rate the spot.',garage:'Garage',bay:'Bay',bookedL:'Booked',total:'Demo total',rate:'Rate your parking experience',noRate:'No rating selected',rated:n=>`${n} of 5 stars`,coC:'End demo parking',
+ dnT:'Session complete',dnS:'Your receipt is in Activity.',dnC:'View activity',again:'Find parking',
+ acT:'Activity',acS:'Your recent demo parking sessions.',pat:'PARKING ACTIVITY',seePat:'See your parking patterns',viewSt:'View statistics',recent:'Recent sessions',noToday:'Today’s receipt appears after check-out.',acNote:'All amounts shown are sample parking charges in USD.',live:'Session in progress',liveS:'Tap to see time left',
+ today:'Today',yest:'Yesterday',earlier:'Earlier',dAgo:n=>`${n} days ago`,min:'min',
+ rcN:'Receipt',rcT:'Parking receipt',ref:'Reference',date:'Date',plate:'Plate',dur:'Duration',status:'Status',done:'Completed',
+ stN:'Statistics',stT:'Parking statistics',stS:'Explore your demo parking history.',week:'Week',month:'Month',visits:'Visits',spent:'Spent',parked:'Time parked',chart:'Chart',table:'Table',spend:'Recent parking spend',back:'Back to activity',
+ prSub:'Demo driver · Miami, FL',prV:'My vehicles',prVs:'Manage the selected vehicle',prP:'Payment method',prPs:'Demo Visa •••• 2354',prS:'Parking statistics',prSs:'See activity totals',prF:'Favorite garages',prFs:n=>`${n} saved`,lang:'Language',signOut:'Restart the demo',
+ ph:'Photos: Unsplash contributors. Map is illustrative.',stB:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],wk:n=>`Wk ${n}`},
+es:{loc:'es-US',tag:'MIAMI',demo:'DEMO',pk:'LA APP DE ESTACIONAMIENTO',find:'Encuentra un mejor lugar.',intT:'Estacionar, sin complicaciones',intS:'Encuentra un espacio, recibe indicaciones y administra tu estacionamiento en un solo lugar.',start:'Empezar',
+ wcN:'Bienvenida',wcT:'Que cada parada cuente',wcS:'Explora garajes cercanos y mira cómo encaja el estacionamiento en tu viaje.',wcNote:'Prueba la experiencia con ubicaciones y datos de pago de ejemplo.',cont:'Continuar',
+ soN:'Opciones de acceso',soT:'Bienvenido a Parkin’go',soS:'Usa la cuenta de prueba para explorar toda la experiencia.',withEmail:'Continuar con correo',asDemo:'Explorar como conductor de prueba',soNote:'Las cuentas de prueba usan datos prellenados.',
+ emN:'Acceder',emT:'Entra con tu correo',emS:'Los datos de la conductora de ejemplo ya están listos.',name:'Nombre',email:'Correo',pass:'Contraseña',emNote:'Este prototipo usa credenciales de ejemplo.',emC:'Continuar con la cuenta de prueba',
+ plN:'Tu vehículo',plT:'Ingresa tu placa',plS:'La placa identifica tu vehículo en la sesión de estacionamiento.',state:'FLORIDA',plSam:'Placa de ejemplo',plNote:'La conductora y el vehículo de ejemplo ya están cargados.',plC:'Usar esta placa de prueba',
+ pyN:'Configurar pago',pyT:'Agrega un método de pago',pyS:'Revisa la tarjeta de prueba antes de reservar un espacio.',country:'País de facturación',city:'Ciudad',us:'Estados Unidos',pyNote:'Solo tarjeta de prueba. No se cobra nada.',pyC:'Usar tarjeta de prueba',
+ vcN:'Tipos de vehículo',vcT:'Elige un tipo de vehículo',vcS:'Mira el vehículo que se usará en tu sesión.',hatch:'Hatchback',hatchS:'Auto compacto',suv:'SUV',suvS:'Vehículo grande',moto:'Moto',motoS:'Dos ruedas',other:'Otro vehículo',otherS:'Otros tipos',useDef:'Usar el vehículo predeterminado',
+ mvN:'Mis vehículos',mvT:'Tu vehículo',mvS:'El vehículo elegido aparecerá en tu reserva.',active:'ACTIVO',chgV:'Cambiar tipo de vehículo',findP:'Buscar estacionamiento',
+ tEx:'Explorar',tAc:'Actividad',tPr:'Perfil',fpT:'Buscar estacionamiento',searchPh:'Buscar estacionamiento cercano',closest:'Lo más cercano',seeAll:n=>`Ver los ${n} lugares`,
+ srN:'Buscar',srT:'Estacionamiento cercano',srS:n=>`${n} ubicaciones de prueba cerca del centro de Miami.`,avail:'Ubicaciones disponibles',fAll:'Todos',fFav:'Favoritos',fCov:'Techado',fEv:'Carga eléctrica',none:'Ningún lugar coincide. Prueba otra búsqueda o filtro.',
+ hr:'/ h',away:m=>m>=1000?`a ${(m/1000).toFixed(1)} km`:`a ${m} m`,bays:n=>`${n} espacios libres`,
+ sdN:'Detalles del lugar',openD:'ABIERTO EN LA DEMO',closedD:'CERRADO',incl:'Qué incluye',i1:'Espacios marcados',i2:'Check-in con QR',iCov:'Estacionamiento techado',iEv:'Carga eléctrica',hours:'Horario',h24:'Abierto 24 horas',hUntil:h=>`Abierto hasta ${h}`,hClosed:h=>`Cerrado · abre ${h}`,
+ chooseBay:'Elegir un espacio',faved:'Añadido a favoritos',unfaved:'Quitado de favoritos',isClosed:'Este garaje está cerrado ahora.',
+ bayN:'Elegir espacio',bayT:'Elige tu espacio',bayS:'Reserva una estadía inicial de 60 minutos.',avl:'Libre',taken:'Ocupado',selBay:'Espacio elegido',sub:'Subtotal de prueba',bayNote:'Tu tiempo empieza cuando haces el check-in.',reserve:'Reservar y ver ruta',
+ roN:'Resumen de ruta',roT:'Ruta a tu lugar',roS:'Sigue la ruta de prueba hasta la entrada del garaje.',yourLoc:'Tu ubicación',yourLocV:'Centro de Miami',follow:'Sigue la ruta marcada',followS:'Indicaciones ilustrativas',resBay:'Espacio reservado',startD:'Empezar a manejar',
+ drN:'Indicaciones',dest:'Destino',viewTrip:'Ver progreso del viaje',t1:'Gira a la derecha',t2:'Sigue derecho',t3:'La entrada del garaje está adelante',in:m=>`En ${m} m`,nextStep:'Toca para el siguiente paso',
+ tpN:'Viaje en curso',tpT:'En camino',tpS:'Tu espacio reservado te espera cuando llegues.',eta:'Llegada estimada',arrived:'Ya llegué',
+ arN:'Llegada',arT:t=>`Llegaste a ${t}`,arS:'Haz coincidir el espacio reservado con el número del lugar.',resv:'Espacio reservado',toCheck:'Ir al check-in',
+ ciN:'Check-in',ciT:'Tu pase de estacionamiento',ciS:'Usa este QR de prueba para recorrer el check-in.',passL:'PASE DEMO',ciBay:'Espacio reservado',ciH:'Haz el check-in para empezar tu sesión',ciHs:m=>`${m} minutos desde el check-in`,ciC:'Iniciar estacionamiento demo',
+ sesN:'Sesión',sesT:'Estacionado ahora',sesS:'Tiempo restante de tu reserva',extend:'Extender tiempo',checkout:'Hacer check-out',
+ exN:'Extender tiempo',exT:'¿Necesitas más tiempo?',exS:'Elige una extensión para tu reserva original.',booked:'TIEMPO RESERVADO',half:'Media hora',hour:'Una hora',selAdd:'Extensión elegida',addCost:'Costo adicional',exC:'Aplicar extensión demo',exDone:'Tiempo añadido a tu reserva',
+ coN:'Check-out',coT:'Revisa tu sesión',coS:'Mira el total y, si quieres, califica el lugar.',garage:'Garaje',bay:'Espacio',bookedL:'Reservado',total:'Total de prueba',rate:'Califica tu experiencia',noRate:'Sin calificación',rated:n=>`${n} de 5 estrellas`,coC:'Terminar estacionamiento demo',
+ dnT:'Sesión completa',dnS:'Tu recibo está en Actividad.',dnC:'Ver actividad',again:'Buscar estacionamiento',
+ acT:'Actividad',acS:'Tus sesiones de prueba recientes.',pat:'ACTIVIDAD',seePat:'Mira tus patrones de estacionamiento',viewSt:'Ver estadísticas',recent:'Sesiones recientes',noToday:'El recibo de hoy aparece después del check-out.',acNote:'Todos los montos son cobros de ejemplo en USD.',live:'Sesión en curso',liveS:'Toca para ver el tiempo restante',
+ today:'Hoy',yest:'Ayer',earlier:'Antes',dAgo:n=>`hace ${n} días`,min:'min',
+ rcN:'Recibo',rcT:'Recibo de estacionamiento',ref:'Referencia',date:'Fecha',plate:'Placa',dur:'Duración',status:'Estado',done:'Completada',
+ stN:'Estadísticas',stT:'Estadísticas',stS:'Explora tu historial de prueba.',week:'Semana',month:'Mes',visits:'Visitas',spent:'Gastado',parked:'Tiempo',chart:'Gráfico',table:'Tabla',spend:'Gasto reciente',back:'Volver a actividad',
+ prSub:'Conductora de prueba · Miami, FL',prV:'Mis vehículos',prVs:'Administra el vehículo elegido',prP:'Método de pago',prPs:'Visa de prueba •••• 2354',prS:'Estadísticas',prSs:'Mira tus totales',prF:'Garajes favoritos',prFs:n=>`${n} guardados`,lang:'Idioma',signOut:'Reiniciar la demo',
+ ph:'Fotos: colaboradores de Unsplash. El mapa es ilustrativo.',stB:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],wk:n=>`Sem ${n}`},
+pt:{loc:'pt-BR',tag:'MIAMI',demo:'DEMO',pk:'O APP DE ESTACIONAMENTO',find:'Encontre uma vaga melhor.',intT:'Estacionar sem complicação',intS:'Encontre uma vaga, receba direções e gerencie seu estacionamento em um só lugar.',start:'Começar',
+ wcN:'Boas-vindas',wcT:'Faça cada parada valer',wcS:'Explore garagens por perto e veja onde o estacionamento entra na sua viagem.',wcNote:'Experimente com locais e dados de pagamento de exemplo.',cont:'Continuar',
+ soN:'Opções de acesso',soT:'Bem-vindo ao Parkin’go',soS:'Use a conta demo para explorar toda a experiência.',withEmail:'Continuar com e-mail',asDemo:'Explorar como motorista demo',soNote:'Contas demo usam dados preenchidos.',
+ emN:'Entrar',emT:'Entre com seu e-mail',emS:'Os dados da motorista de exemplo já estão prontos.',name:'Nome',email:'E-mail',pass:'Senha',emNote:'Este protótipo usa credenciais de exemplo.',emC:'Continuar com a conta demo',
+ plN:'Seu veículo',plT:'Digite sua placa',plS:'A placa identifica o veículo na sessão de estacionamento.',state:'FLORIDA',plSam:'Placa de exemplo',plNote:'A motorista e o veículo de exemplo já estão preenchidos.',plC:'Usar esta placa demo',
+ pyN:'Pagamento',pyT:'Adicione um meio de pagamento',pyS:'Revise o cartão demo antes de reservar uma vaga.',country:'País de cobrança',city:'Cidade',us:'Estados Unidos',pyNote:'Apenas cartão demo. Nenhuma cobrança é feita.',pyC:'Usar cartão demo',
+ vcN:'Tipos de veículo',vcT:'Escolha um tipo de veículo',vcS:'Veja o veículo que será usado na sua sessão.',hatch:'Hatch',hatchS:'Carro compacto',suv:'SUV',suvS:'Veículo maior',moto:'Moto',motoS:'Duas rodas',other:'Outro veículo',otherS:'Outros tipos',useDef:'Usar o veículo padrão',
+ mvN:'Meus veículos',mvT:'Seu veículo',mvS:'O veículo escolhido aparece na sua reserva.',active:'ATIVO',chgV:'Mudar tipo de veículo',findP:'Buscar vaga',
+ tEx:'Explorar',tAc:'Atividade',tPr:'Perfil',fpT:'Buscar vaga',searchPh:'Buscar estacionamento por perto',closest:'Mais perto de você',seeAll:n=>`Ver as ${n} opções`,
+ srN:'Buscar',srT:'Estacionamento por perto',srS:n=>`${n} locais demo perto do centro de Miami.`,avail:'Locais disponíveis',fAll:'Todos',fFav:'Favoritos',fCov:'Coberto',fEv:'Recarga elétrica',none:'Nenhum local encontrado. Tente outra busca ou filtro.',
+ hr:'/ h',away:m=>m>=1000?`a ${(m/1000).toFixed(1)} km`:`a ${m} m`,bays:n=>`${n} vagas livres`,
+ sdN:'Detalhes do local',openD:'ABERTO NA DEMO',closedD:'FECHADO',incl:'O que está incluso',i1:'Vagas demarcadas',i2:'Check-in por QR',iCov:'Estacionamento coberto',iEv:'Recarga elétrica',hours:'Horário',h24:'Aberto 24 horas',hUntil:h=>`Aberto até ${h}`,hClosed:h=>`Fechado · abre ${h}`,
+ chooseBay:'Escolher uma vaga',faved:'Adicionado aos favoritos',unfaved:'Removido dos favoritos',isClosed:'Esta garagem está fechada agora.',
+ bayN:'Escolher vaga',bayT:'Escolha sua vaga',bayS:'Reserve uma permanência inicial de 60 minutos.',avl:'Livre',taken:'Ocupada',selBay:'Vaga escolhida',sub:'Subtotal demo',bayNote:'Seu tempo começa quando você faz o check-in.',reserve:'Reservar e ver rota',
+ roN:'Visão da rota',roT:'Rota até sua vaga',roS:'Siga a rota demo até a entrada da garagem.',yourLoc:'Sua localização',yourLocV:'Centro de Miami',follow:'Siga a rota marcada',followS:'Direções ilustrativas',resBay:'Vaga reservada',startD:'Começar a dirigir',
+ drN:'Direções',dest:'Destino',viewTrip:'Ver andamento da viagem',t1:'Vire à direita',t2:'Siga em frente',t3:'A entrada da garagem está logo à frente',in:m=>`Em ${m} m`,nextStep:'Toque para o próximo passo',
+ tpN:'Viagem em andamento',tpT:'A caminho',tpS:'Sua vaga reservada estará pronta quando você chegar.',eta:'Chegada estimada',arrived:'Cheguei',
+ arN:'Chegada',arT:t=>`Você chegou em ${t}`,arS:'Confira a vaga reservada com o número no local.',resv:'Vaga reservada',toCheck:'Ir para o check-in',
+ ciN:'Check-in',ciT:'Seu passe de estacionamento',ciS:'Use este QR demo para percorrer o check-in.',passL:'PASSE DEMO',ciBay:'Vaga reservada',ciH:'Faça o check-in para iniciar a sessão',ciHs:m=>`${m} minutos a partir do check-in`,ciC:'Iniciar estacionamento demo',
+ sesN:'Sessão',sesT:'Estacionado agora',sesS:'Tempo restante da sua reserva',extend:'Estender tempo',checkout:'Fazer check-out',
+ exN:'Estender tempo',exT:'Precisa de mais tempo?',exS:'Escolha uma extensão para a reserva original.',booked:'TEMPO RESERVADO',half:'Meia hora',hour:'Uma hora',selAdd:'Extensão escolhida',addCost:'Custo adicional',exC:'Aplicar extensão demo',exDone:'Tempo adicionado à sua reserva',
+ coN:'Check-out',coT:'Revise sua sessão',coS:'Veja o total e, se quiser, avalie o local.',garage:'Garagem',bay:'Vaga',bookedL:'Reservado',total:'Total demo',rate:'Avalie sua experiência',noRate:'Sem avaliação',rated:n=>`${n} de 5 estrelas`,coC:'Encerrar estacionamento demo',
+ dnT:'Sessão concluída',dnS:'Seu recibo está em Atividade.',dnC:'Ver atividade',again:'Buscar vaga',
+ acT:'Atividade',acS:'Suas sessões demo recentes.',pat:'ATIVIDADE',seePat:'Veja seus padrões de estacionamento',viewSt:'Ver estatísticas',recent:'Sessões recentes',noToday:'O recibo de hoje aparece após o check-out.',acNote:'Todos os valores são cobranças de exemplo em USD.',live:'Sessão em andamento',liveS:'Toque para ver o tempo restante',
+ today:'Hoje',yest:'Ontem',earlier:'Antes',dAgo:n=>`há ${n} dias`,min:'min',
+ rcN:'Recibo',rcT:'Recibo de estacionamento',ref:'Referência',date:'Data',plate:'Placa',dur:'Duração',status:'Status',done:'Concluída',
+ stN:'Estatísticas',stT:'Estatísticas',stS:'Explore seu histórico demo.',week:'Semana',month:'Mês',visits:'Visitas',spent:'Gasto',parked:'Tempo',chart:'Gráfico',table:'Tabela',spend:'Gasto recente',back:'Voltar para atividade',
+ prSub:'Motorista demo · Miami, FL',prV:'Meus veículos',prVs:'Gerencie o veículo escolhido',prP:'Meio de pagamento',prPs:'Visa demo •••• 2354',prS:'Estatísticas',prSs:'Veja seus totais',prF:'Garagens favoritas',prFs:n=>`${n} salvas`,lang:'Idioma',signOut:'Reiniciar a demo',
+ ph:'Fotos: colaboradores do Unsplash. O mapa é ilustrativo.',stB:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],wk:n=>`Sem ${n}`}
+};
+/* ---------- data ---------- */
+const SP=[
+ {id:'brk',n:'Brickell Park Garage',d:350,r:8,x:152,y:196,cov:1,ev:1,free:42,ph:'high',h:[0,24],bays:['A12','A14','A15','B03','B07']},
+ {id:'bay',n:'Bayfront Beach Lot',d:600,r:6,x:214,y:118,cov:0,ev:0,free:18,ph:'bwater',h:[6,22],bays:['C02','C04','C05','C09']},
+ {id:'wyn',n:'Wynwood Drive-In Park',d:850,r:10,x:92,y:62,cov:0,ev:1,free:27,ph:'victor',h:[8,26],bays:['D01','D06','D08','D11']},
+ {id:'des',n:'Design District Garage',d:1400,r:7,x:196,y:26,cov:1,ev:0,free:63,ph:'aerial',h:[6,23],bays:['E10','E12','E17','E20']},
+ {id:'lin',n:'Lincoln Road Deck',d:2100,r:12,x:330,y:150,cov:1,ev:1,free:12,ph:'carlyle',h:[7,24],bays:['F05','F08','F14']}
+];
+const YOU={x:92,y:256};
+const SEED=[{s:'bay',d:1,m:60,a:6},{s:'wyn',d:2,m:60,a:10},{s:'brk',d:3,m:120,a:16},{s:'bay',d:4,m:90,a:9},{s:'brk',d:6,m:60,a:8},{s:'lin',d:9,m:180,a:36},{s:'des',d:15,m:60,a:7},{s:'brk',d:22,m:120,a:16}];
+const S={lang:['en','es','pt'].includes(q.get('lang'))?q.get('lang'):(/^(es|pt)/.exec(navigator.language||'')||['en'])[0],
+ scr:'intro',stack:[],veh:'hatch',spot:'brk',bay:'A12',fav:['brk'],q:'',flt:'all',hist:SEED.map((h,i)=>({...h,id:i})),sess:null,add:30,rate:0,prog:0,step:0,range:'week',mode:'chart',rc:null,ext:0,toast:''};
+const t=(k,...a)=>{const v=L[S.lang][k];return typeof v==='function'?v(...a):v};
+const T=k=>t(k);
+const money=n=>new Intl.NumberFormat(L[S.lang].loc,{style:'currency',currency:'USD'}).format(n);
+const spot=id=>SP.find(s=>s.id===id);
+const nyHour=()=>+new Intl.DateTimeFormat('en-US',{hour:'numeric',hour12:false,timeZone:'America/New_York'}).format(new Date())%24;
+const fmtH=h=>new Intl.DateTimeFormat(L[S.lang].loc,{hour:'numeric',minute:'2-digit',timeZone:'UTC'}).format(new Date(Date.UTC(2026,0,1,h%24,0)));
+const isOpen=s=>{const h=nyHour();return s.h[1]>=24&&s.h[0]===0&&s.h[1]===24?true:(h>=s.h[0]&&h<s.h[1])||(s.h[1]>24&&h<s.h[1]-24)};
+const hoursTxt=s=>s.h[0]===0&&s.h[1]===24?t('h24'):isOpen(s)?t('hUntil',fmtH(s.h[1])):t('hClosed',fmtH(s.h[0]));
+const eta=m=>new Intl.DateTimeFormat(L[S.lang].loc,{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}).format(new Date(Date.now()+m*60000));
+const mins=s=>Math.max(3,Math.round((Math.abs(s.x-YOU.x)+Math.abs(s.y-YOU.y))/22));
+const total=()=>spot(S.spot).r*((60+S.ext)/60);
+/* ---------- map ---------- */
+const blocks=(()=>{let o='';for(let x=6;x<236;x+=46)for(let y=6;y<290;y+=40){if((x>150&&y>190&&x<240)||(x>=190&&y<80&&false))continue;o+=`<rect x="${x}" y="${y}" width="36" height="30" rx="5"/>`}return o})();
+function mapSvg(o={}){
+ const path=o.route?routePts(o.route):null;
+ let pins='';
+ if(o.pins)for(const s of SP){const sel=o.sel===s.id;const lab=money(s.r).replace(/\.00$/,'');const w=sel?58:48;
+  pins+=`<g class="pin" data-a="spot" data-v="${s.id}" role="button" aria-label="${s.n}"><rect x="${s.x-w/2}" y="${s.y-13}" width="${w}" height="26" rx="13" fill="${sel?'#1BE7FF':'url(#gs)'}" stroke="#fff" stroke-opacity=".5"/><text x="${s.x}" y="${s.y+5}" text-anchor="middle" font-size="13" font-weight="800" fill="${sel?'#0F0724':'#fff'}" font-family="Outfit,sans-serif">${lab}</text></g>`}
+ let rt='';
+ if(path){const d='M'+path.map(p=>p.join(' ')).join('L');const s=spot(o.route);
+  rt=`<path d="${d}" fill="none" stroke="#1BE7FF" stroke-width="9" stroke-opacity=".25" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#1BE7FF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="${o.dash?'1 9':'none'}"/><g><rect x="${s.x-13}" y="${s.y-13}" width="26" height="26" rx="8" fill="#FF2E97" stroke="#fff"/><text x="${s.x}" y="${s.y+6}" text-anchor="middle" font-size="16" font-weight="800" fill="#fff" font-family="Outfit">P</text></g>`;
+  const pt=pointAt(path,o.p??0);rt+=`<circle cx="${pt[0]}" cy="${pt[1]}" r="14" fill="#FFD23F" fill-opacity=".25"/><circle cx="${pt[0]}" cy="${pt[1]}" r="7" fill="#FFD23F" stroke="#0F0724" stroke-width="2.5"/>`}
+ else if(o.you!==false)rt=`<circle cx="${YOU.x}" cy="${YOU.y}" r="14" fill="#FFD23F" fill-opacity=".25"/><circle cx="${YOU.x}" cy="${YOU.y}" r="7" fill="#FFD23F" stroke="#0F0724" stroke-width="2.5"/>`;
+ return `<div class="map"><span class="tag">${T('demo')} MAP</span><svg viewBox="0 0 360 290" role="img" aria-label="Illustrative map of Miami and Miami Beach"><defs><linearGradient id="bw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3a6e"/><stop offset="1" stop-color="#2b1a7a"/></linearGradient><linearGradient id="gs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2E97"/><stop offset="1" stop-color="#FF8A3D"/></linearGradient></defs>
+ <rect width="360" height="290" fill="#1b0f3f"/><g fill="#2a1963" stroke="#3b2788" stroke-width="1">${blocks}</g>
+ <path d="M244 0C262 60 232 100 258 150S270 250 300 290H236C214 240 222 190 200 150S226 60 214 0z" fill="url(#bw)" opacity=".0"/>
+ <path d="M240 0c10 40 4 80 24 120s6 110 30 170H360V0z" fill="url(#bw)"/><path d="M296 0c4 50-6 90 14 140s2 110 26 150H360V0z" fill="#23135a" stroke="#FF2E97" stroke-opacity=".35"/>
+ <path d="M248 122 300 128M258 220 304 226" stroke="#8B5CFF" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+ <text x="262" y="196" font-size="9" font-weight="700" fill="#7fd9ff" opacity=".85" letter-spacing="2" font-family="Outfit">BISCAYNE BAY</text>
+ <text x="12" y="282" font-size="9" font-weight="700" fill="#BBABDD" opacity=".7" letter-spacing="1.5" font-family="Outfit">DOWNTOWN · BRICKELL</text>${rt}${pins}</svg></div>`}
+function routePts(id){const s=spot(id);const a=YOU,b=s;const mx=a.x+(b.x-a.x)*.4,my=a.y+(b.y-a.y)*.55;return[[a.x,a.y],[a.x,my],[mx,my],[mx,b.y+(b.y<a.y?18:-18)],[b.x,b.y+(b.y<a.y?18:-18)],[b.x,b.y]].filter((p,i,arr)=>!i||p[0]!==arr[i-1][0]||p[1]!==arr[i-1][1])}
+function pointAt(p,f){const seg=[];let tot=0;for(let i=1;i<p.length;i++){const l=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);seg.push(l);tot+=l}let d=tot*Math.min(1,Math.max(0,f));for(let i=0;i<seg.length;i++){if(d<=seg[i]||i===seg.length-1){const k=seg[i]?Math.min(1,d/seg[i]):1;return[p[i][0]+(p[i+1][0]-p[i][0])*k,p[i][1]+(p[i+1][1]-p[i][1])*k]}d-=seg[i]}return p[p.length-1]}
+/* ---------- shared pieces ---------- */
+const stat=()=>{};
+const hdr=(title,back=true)=>`<div class="hd">${back?`<button class="bk" data-a="back" aria-label="Back">${ic('back')}</button>`:''}<div class="tt">${title}</div></div>`;
+const foot=(...b)=>`<div class="foot">${b.join('')}</div>`;
+const btn=(txt,a,v='',cls='')=>`<button class="btn ${cls}" data-a="${a}" ${v!==''?`data-v="${v}"`:''}>${txt}</button>`;
+const note=(ico,txt)=>`<div class="note">${ic(ico)}<span>${txt}</span></div>`;
+const logo=chip=>`<div class="hd" style="padding-top:calc(var(--st,0px) + 16px)"><div class="logo"><i>P</i><span>Parkin<b>’go</b></span></div><span style="flex:1"></span>${chip}</div>`;
+const tabs=cur=>`<nav class="tabs" aria-label="Main">${[['home','map','tEx'],['activity','clock','tAc'],['profile','user','tPr']].map(([k,i,l])=>`<button data-a="tab" data-v="${k}" ${k===cur?'aria-current="page"':''}>${ic(i)}<span>${T(l)}</span></button>`).join('')}</nav>`;
+const spotRow=s=>`<div class="item" style="padding:10px 12px"><button class="row" style="flex:1;min-width:0" data-a="spot" data-v="${s.id}"><span class="ico">${ic('p')}</span><span class="g"><b>${s.n}</b><span class="sm mut">${t('away',s.d)} · <span class="price">${money(s.r)}</span> ${t('hr')}</span></span></button><button class="heart ${S.fav.includes(s.id)?'on':''}" data-a="fav" data-v="${s.id}" aria-label="Favorite" aria-pressed="${S.fav.includes(s.id)}">${ic('heart')}</button></div>`;
+const LIVE_DUR=()=>S.sess?(60+S.sess.ext)*60:0;
+const left=()=>S.sess?Math.max(0,LIVE_DUR()-Math.floor((Date.now()-S.sess.t0)/1000)):0;
+const mmss=n=>`${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;
+function histAll(){return S.hist}
+function rel(d){return d===0?t('today'):d===1?t('yest'):t('dAgo',d)}
+/* ---------- screens ---------- */
+const SC={
+intro:()=>({full:1,html:`${logo(`<span class="chip">${T('demo')}</span>`)}<div class="body"><div class="hero" style="background-image:var(--ph-dusk)"><div><small>${T('pk')}</small><strong>${T('find')}</strong></div></div><div class="neon" style="margin-top:22px">${T('intT')}</div><p class="sub">${T('intS')}</p></div>${foot(btn(T('start'),'go','welcome'))}`}),
+welcome:()=>({html:`${hdr(T('wcN'))}<div class="body"><div class="hero" style="background-image:var(--ph-palms);min-height:260px"></div><div class="neon" style="margin-top:20px">${T('wcT')}</div><p class="sub">${T('wcS')}</p>${note('p',T('wcNote'))}</div>${foot(btn(T('cont'),'go','options'))}`}),
+options:()=>({html:`${hdr(T('soN'))}<div class="body"><div class="hero" style="background-image:var(--ph-aerial);min-height:200px"></div><div class="neon" style="margin-top:20px">${T('soT')}</div><p class="sub">${T('soS')}</p></div>${foot(btn(T('withEmail'),'go','email'),btn(T('asDemo'),'go','plate','ghost'),`<p class="sm dim" style="margin:4px 2px 0">${T('soNote')}</p>`)}`}),
+email:()=>({html:`${hdr(T('emN'))}<div class="body"><div class="neon">${T('emT')}</div><p class="sub">${T('emS')}</p><div class="field"><label>${T('name')}</label><div>Maria Snow</div></div><div class="field"><label>${T('email')}</label><div>maria@example.com</div></div><div class="field"><label>${T('pass')}</label><div>••••••••</div></div>${note('key',T('emNote'))}</div>${foot(btn(T('emC'),'go','plate'))}`}),
+plate:()=>({html:`${hdr(T('plN'))}<div class="body"><div class="neon">${T('plT')}</div><p class="sub">${T('plS')}</p><div class="plate"><small>${T('state')}</small><b>PGO-182</b><span>${T('plSam')}</span></div><div style="height:16px"></div>${note('car',T('plNote'))}</div>${foot(btn(T('plC'),'go','pay'))}`}),
+pay:()=>({html:`${hdr(T('pyN'))}<div class="body"><div class="neon">${T('pyT')}</div><p class="sub">${T('pyS')}</p><div class="pay"><div class="row sp">${ic('card')}<b>VISA</b></div><div class="n num">•••• •••• •••• 2354</div><div class="row sp sm"><b>MARIA SNOW</b><b>08/29</b></div></div><div style="height:14px"></div><div class="field"><label>${T('country')}</label><div>${T('us')}</div></div><div class="field"><label>${T('city')}</label><div>Miami, FL</div></div>${note('shield',T('pyNote'))}</div>${foot(btn(T('pyC'),'go','vtype'))}`}),
+vtype:()=>({html:`${hdr(T('vcN'))}<div class="body"><div class="neon">${T('vcT')}</div><p class="sub">${T('vcS')}</p><div class="grid2">${['hatch','suv','moto','other'].map(k=>`<button class="tile" data-a="veh" data-v="${k}" aria-pressed="${S.veh===k}"><span class="im">${vsvg(k)}</span><span class="tx"><b>${T(k)}</b><span class="sm mut">${T(k+'S')}</span></span></button>`).join('')}</div></div>${foot(btn(T('useDef'),'go','vehicle','txt'))}`}),
+vehicle:()=>({html:`${hdr(T('mvN'))}<div class="body"><div class="neon">${T('mvT')}</div><p class="sub">${T('mvS')}</p><div class="hero" style="min-height:200px;background:linear-gradient(160deg,#25164F,#B4237F 70%,#FF8A3D);align-items:center;justify-content:center"><svg viewBox="0 0 64 52" style="width:190px;height:150px;position:relative;z-index:1;fill:none;stroke:#fff;stroke-width:1.6;filter:drop-shadow(0 0 10px #1BE7FF)">${VEH[S.veh]}</svg></div><div class="card" style="margin-top:14px"><div class="row sp"><div class="row">${ic('car')}<b style="font-size:19px">${T(S.veh)}</b></div><span class="chip ok">${T('active')}</span></div><p class="mut" style="margin:6px 0 0 34px">PGO-182</p></div><button class="btn txt" data-a="go" data-v="vtype" style="margin-top:8px">${T('chgV')}</button></div>${foot(btn(T('findP'),'start'))}`}),
+home:()=>{const c=SP.slice().sort((a,b)=>a.d-b.d)[0];return {tab:'home',full:1,html:`${logo(`<span class="chip">${T('tag')}</span>`)}<div class="body"><div class="neon" style="font-size:28px;margin-top:2px">${T('fpT')}</div><button class="search" data-a="go" data-v="search" style="width:100%">${ic('search')}<span class="dim">${T('searchPh')}</span></button>${S.sess?`<button class="turn" data-a="go" data-v="session" style="background:var(--ocean)"><span class="ico" style="background:rgba(15,7,36,.25);color:#fff">${ic('clock')}</span><span style="flex:1"><b style="display:block;color:#0F0724">${T('live')}</b><span class="num" style="color:#0F0724;font-weight:700" data-live>${mmss(left())}</span></span>${ic('chev')}</button>`:''}${mapSvg({pins:1})}<h3>${T('closest')}</h3>${spotRow(c)}<button class="btn txt" data-a="go" data-v="search">${t('seeAll',SP.length)}</button></div>${tabs('home')}`}},
+search:()=>{const ql=S.q.trim().toLowerCase();const list=SP.filter(s=>(!ql||s.n.toLowerCase().includes(ql))&&(S.flt==='all'||(S.flt==='fav'&&S.fav.includes(s.id))||(S.flt==='cov'&&s.cov)||(S.flt==='ev'&&s.ev))).sort((a,b)=>a.d-b.d);
+ return {html:`${hdr(T('srN'))}<div class="body"><div class="neon">${T('srT')}</div><p class="sub">${t('srS',SP.length)}</p><label class="search">${ic('search')}<input id="q" value="${S.q.replace(/"/g,'&quot;')}" placeholder="${T('searchPh')}" aria-label="${T('searchPh')}" autocomplete="off"></label><div class="chips">${[['all','fAll'],['fav','fFav'],['cov','fCov'],['ev','fEv']].map(([k,l])=>`<button class="fc" data-a="flt" data-v="${k}" aria-pressed="${S.flt===k}">${T(l)}</button>`).join('')}</div>${mapSvg({pins:1})}<h3>${T('avail')}</h3><div class="list" id="res">${list.map(spotRow).join('')||`<p class="mut">${T('none')}</p>`}</div></div>`}},
+spot:()=>{const s=spot(S.spot),open=isOpen(s);return {html:`${hdr(T('sdN'))}<div class="body"><div class="hero" style="background-image:var(--ph-${s.ph});min-height:210px"></div><div class="row sp" style="margin-top:14px"><span class="chip ${open?'ok':'pk'}">${open?T('openD'):T('closedD')}</span><button class="heart ${S.fav.includes(s.id)?'on':''}" data-a="fav" data-v="${s.id}" aria-label="Favorite" aria-pressed="${S.fav.includes(s.id)}">${ic('heart')}</button></div><div class="neon" style="font-size:27px;margin-top:6px">${s.n}</div><div class="row sp"><span class="mut">${t('away',s.d)} · ${t('bays',s.free)}</span><span class="price" style="font-size:18px">${money(s.r)} ${t('hr')}</span></div><div class="card" style="margin-top:16px"><b>${T('incl')}</b><div class="col" style="margin-top:10px;gap:8px"><span class="row">${ic('check')}${T('i1')}</span><span class="row">${ic('check')}${T('i2')}</span>${s.cov?`<span class="row">${ic('roof')}${T('iCov')}</span>`:''}${s.ev?`<span class="row">${ic('bolt')}${T('iEv')}</span>`:''}<span class="row">${ic('clock')}${hoursTxt(s)}</span></div></div></div>${foot(btn(T('chooseBay'),'bays'))}`}},
+bay:()=>{const s=spot(S.spot);return {html:`${hdr(T('bayN'))}<div class="body"><div class="neon">${T('bayT')}</div><p class="sub">${T('bayS')}</p><div class="item"><span class="ico">${ic('p')}</span><span class="g"><b>${s.n}</b><span class="price">${money(s.r)} ${t('hr')}</span></span></div><div class="grid2" style="margin:14px 0">${s.bays.map((b,i)=>`<button class="opt" data-a="pickbay" data-v="${b}" aria-pressed="${S.bay===b}" ${i===3&&s.bays.length>4?'disabled':''}>${b}<small>${i===3&&s.bays.length>4?T('taken'):T('avl')}</small></button>`).join('')}</div><div class="card"><div class="kv"><span>${T('selBay')}</span><b>${S.bay}</b></div><div class="kv"><span>${T('sub')}</span><b>${money(s.r)}</b></div></div><div style="height:12px"></div>${note('clock',T('bayNote'))}</div>${foot(btn(T('reserve'),'reserve'))}`}},
+route:()=>{const s=spot(S.spot);return {html:`${hdr(T('roN'))}<div class="body"><div class="neon">${T('roT')}</div><p class="sub">${T('roS')}</p>${mapSvg({route:s.id})}<div class="col" style="margin-top:16px;gap:14px"><div class="row"><span class="ico">${ic('pin')}</span><div><b>${T('yourLoc')}</b><div class="sm mut">${T('yourLocV')}</div></div></div><div class="row"><span class="ico">${ic('turn')}</span><div><b>${T('follow')}</b><div class="sm mut">${T('followS')} · ${mins(s)} ${T('min')}</div></div></div><div class="row"><span class="ico pk">${ic('p')}</span><div><b>${s.n}</b><div class="sm mut">${T('resBay')} ${S.bay}</div></div></div></div></div>${foot(btn(T('startD'),'go','drive'))}`}},
+drive:()=>{const s=spot(S.spot),st=[['t1',200],['t2',450],['t3',60]][S.step%3];return {html:`${hdr(T('drN'))}<div class="body"><button class="turn" data-a="step">${ic('turn')}<span style="flex:1"><b style="font-size:20px;display:block">${T(st[0])}</b><span class="sm" style="opacity:.9">${t('in',st[1])} · ${T('nextStep')}</span></span></button>${mapSvg({route:s.id,p:.12+S.step*.1})}<div class="item" style="margin-top:12px">${ic('pin','')}<span class="g mut">${T('dest')}</span><b>${s.n}</b></div></div>${foot(btn(T('viewTrip'),'go','trip'))}`}},
+trip:()=>{const s=spot(S.spot);return {html:`${hdr(T('tpN'))}<div class="body"><div class="neon">${T('tpT')}</div><p class="sub">${T('tpS')}</p><div id="tmap">${mapSvg({route:s.id,p:S.prog})}</div><div class="prog" style="margin:14px 0"><i id="pbar" style="width:${S.prog*100}%"></i></div><div class="item"><span class="g mut">${T('dest')}</span><b>${s.n}</b></div><div class="item" style="margin-top:10px">${ic('clock')}<span class="g mut">${T('eta')}</span><b class="num" id="etaT">${eta(Math.max(1,Math.round(mins(s)*(1-S.prog))))}</b></div></div>${foot(btn(T('arrived'),'go','arrive'))}`}},
+arrive:()=>{const s=spot(S.spot);return {html:`${hdr(T('arN'))}<div class="body"><div class="neon">${t('arT',s.n)}</div><p class="sub">${T('arS')}</p>${mapSvg({route:s.id,p:1})}<div class="card" style="margin-top:14px"><div class="row"><span class="ico">${ic('p')}</span><div><b>${s.n}</b><div class="sm mut">${T('resv')}</div></div></div><div class="big-bay" style="margin-top:10px">${S.bay}</div></div></div>${foot(btn(T('toCheck'),'go','checkin'))}`}},
+checkin:()=>({html:`${hdr(T('ciN'))}<div class="body"><div class="neon">${T('ciT')}</div><p class="sub">${T('ciS')}</p><div class="dark" style="text-align:center"><div class="qr"><svg viewBox="0 0 __QRN__ __QRN__" shape-rendering="crispEdges"><path d="__QR__" fill="#0F0724"/></svg></div><div class="k" style="margin-top:12px">${T('passL')} / PG-0248</div></div><div class="item" style="margin-top:14px"><span class="ico">${ic('p')}</span><span class="g mut">${T('ciBay')}</span><b>${S.bay}</b></div><div class="item" style="margin-top:10px"><span class="ico">${ic('clock')}</span><span class="g"><b>${T('ciH')}</b><span class="sm mut">${t('ciHs',60)}</span></span></div></div>${foot(btn(T('ciC'),'checkin'))}`}),
+session:()=>{const s=spot(S.sess?S.sess.s:S.spot);return {html:`${hdr(T('sesN'),true)}<div class="body"><div class="neon">${T('sesT')}</div><p class="sub">${T('sesS')}</p><div class="dark" style="text-align:center"><div class="k">${s.n} · ${S.sess?S.sess.bay:''}</div><div class="timer num" data-live id="live">${mmss(left())}</div><div class="prog" style="margin-top:10px"><i id="lbar" style="width:${S.sess?(100-left()/LIVE_DUR()*100):0}%"></i></div></div><div class="card" style="margin-top:14px"><div class="kv"><span>${T('plate')}</span><b>PGO-182</b></div><div class="kv"><span>${T('bookedL')}</span><b>${S.sess?60+S.sess.ext:60} ${T('min')}</b></div><div class="kv"><span>${T('total')}</span><b>${money(S.sess?s.r*(60+S.sess.ext)/60:s.r)}</b></div></div></div>${foot(btn(T('extend'),'go','extend','ghost'),btn(T('checkout'),'go','checkout'))}`}},
+extend:()=>{const s=spot(S.sess?S.sess.s:S.spot);const cost=s.r*S.add/60;return {html:`${hdr(T('exN'))}<div class="body"><div class="neon">${T('exT')}</div><p class="sub">${T('exS')}</p><div class="dark"><div class="k">${T('booked')}</div><div class="big num">${S.sess?60+S.sess.ext:60} ${T('min')}</div></div><div class="grid2" style="margin:14px 0">${[30,60].map(m=>`<button class="opt" data-a="add" data-v="${m}" aria-pressed="${S.add===m}">+${m} ${T('min')}<small>${T(m===30?'half':'hour')}</small></button>`).join('')}</div><div class="card"><div class="kv"><span>${T('selAdd')}</span><b>+${S.add} ${T('min')}</b></div><div class="kv"><span>${T('addCost')}</span><b>${money(cost)}</b></div></div></div>${foot(btn(T('exC'),'extend'))}`}},
+checkout:()=>{const s=spot(S.sess?S.sess.s:S.spot),m=S.sess?60+S.sess.ext:60;return {html:`${hdr(T('coN'))}<div class="body"><div class="neon">${T('coT')}</div><p class="sub">${T('coS')}</p><div class="card"><div class="kv"><span>${T('garage')}</span><b>${s.n}</b></div><div class="kv"><span>${T('bay')}</span><b>${S.sess?S.sess.bay:S.bay}</b></div><div class="kv"><span>${T('bookedL')}</span><b>${m} ${T('min')}</b></div><div class="kv"><span>${T('total')}</span><b class="price" style="font-size:18px">${money(s.r*m/60)}</b></div></div><h3>${T('rate')}</h3><div class="stars" role="group" aria-label="${T('rate')}">${[1,2,3,4,5].map(n=>`<button class="${S.rate>=n?'on':''}" data-a="rate" data-v="${n}" aria-label="${n}">${ic('star')}</button>`).join('')}</div><p class="b" style="color:var(--cyan);margin:10px 0 0">${S.rate?t('rated',S.rate):T('noRate')}</p></div>${foot(btn(T('coC'),'end'))}`}},
+done:()=>({full:1,html:`<div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;gap:6px"><div style="width:96px;height:96px;border-radius:50%;margin:0 auto 10px;background:var(--sunset);display:grid;place-items:center;box-shadow:0 0 40px rgba(255,46,151,.6)"><svg class="i" viewBox="0 0 24 24" style="width:48px;height:48px;stroke-width:2.4">${IC.check}</svg></div><div class="neon">${T('dnT')}</div><p class="sub">${T('dnS')}</p></div>${foot(btn(T('dnC'),'tab','activity'),btn(T('again'),'tab','home','ghost'))}`}),
+activity:()=>{const today=S.hist.filter(h=>h.d===0);const rest=S.hist.filter(h=>h.d>0).slice(0,3);const row=h=>{const s=spot(h.s);return `<button class="item" data-a="rc" data-v="${h.id}"><span class="ico">${ic('receipt')}</span><span class="g"><b>${s.n}</b><span class="sm mut">${rel(h.d)} · ${h.m} ${T('min')}</span></span><b class="num">${money(h.a)}</b></button>`};
+ return {tab:'activity',full:1,html:`<div class="body" style="padding-top:calc(var(--st,0px) + 14px)"><div class="neon">${T('acT')}</div><p class="sub">${T('acS')}</p>${S.sess?`<button class="turn" data-a="go" data-v="session" style="background:var(--ocean)"><span class="ico" style="background:rgba(15,7,36,.25);color:#fff">${ic('clock')}</span><span style="flex:1"><b style="display:block;color:#0F0724">${T('live')}</b><span class="sm" style="color:#0F0724">${T('liveS')}</span></span><span class="num b" style="color:#0F0724" data-live>${mmss(left())}</span></button>`:''}<button class="dark" data-a="go" data-v="stats" style="width:100%;display:block"><div class="k">${T('pat')}</div><div class="big" style="font-size:24px">${T('seePat')}</div><div class="row b" style="color:var(--cyan);margin-top:10px">${T('viewSt')} ${ic('chev')}</div></button><h3>${T('recent')}</h3><div class="list">${today.length?today.map(row).join(''):`<div class="item" style="color:var(--mut)">${ic('receipt')}<span>${T('noToday')}</span></div>`}${rest.map(row).join('')}</div><div style="height:14px"></div>${note('card',T('acNote'))}</div>${tabs('activity')}`}},
+receipt:()=>{const h=S.hist.find(x=>x.id===S.rc)||S.hist[0],s=spot(h.s);return {html:`${hdr(T('rcN'))}<div class="body"><div class="neon">${T('rcT')}</div><p class="sub">${s.n}</p><div class="card"><div class="kv"><span>${T('ref')}</span><b class="num">PG-${String(1000+h.id*37).slice(-4)}</b></div><div class="kv"><span>${T('date')}</span><b>${rel(h.d)}</b></div><div class="kv"><span>${T('bay')}</span><b>${s.bays[h.id%s.bays.length]}</b></div><div class="kv"><span>${T('plate')}</span><b>PGO-182</b></div><div class="kv"><span>${T('dur')}</span><b>${h.m} ${T('min')}</b></div><div class="kv"><span>${T('status')}</span><span class="chip ok">${T('done')}</span></div><div class="kv"><span>${T('total')}</span><b class="price" style="font-size:19px">${money(h.a)}</b></div></div></div>`}},
+stats:()=>{const R=S.range,H=S.hist;let items,rows;
+ if(R==='today'){items=H.filter(h=>h.d===0);rows=items.map(h=>[spot(h.s).n.split(' ')[0],h.a,h.m]);}
+ else if(R==='week'){const lab=[];rows=[];for(let i=6;i>=0;i--){const dt=new Date(Date.now()-i*864e5);const day=new Date(dt.toLocaleString('en-US',{timeZone:'America/New_York'})).getDay();const hs=H.filter(h=>h.d===i);rows.push([t('stB')[day],hs.reduce((a,h)=>a+h.a,0),hs.reduce((a,h)=>a+h.m,0)])}items=H.filter(h=>h.d<7)}
+ else{rows=[];for(let w=3;w>=0;w--){const hs=H.filter(h=>h.d>=w*7&&h.d<w*7+7);rows.push([t('wk',4-w),hs.reduce((a,h)=>a+h.a,0),hs.reduce((a,h)=>a+h.m,0)])}items=H.filter(h=>h.d<28)}
+ const sp=items.reduce((a,h)=>a+h.a,0),mn=items.reduce((a,h)=>a+h.m,0),mx=Math.max(1,...rows.map(r=>r[1])),hiI=rows.reduce((b,r,i)=>r[1]>rows[b][1]?i:b,0);
+ const lbl={today:'today',week:'week',month:'month'}[R];
+ return {html:`${hdr(T('stN'))}<div class="body"><div class="neon">${T('stT')}</div><p class="sub">${T('stS')}</p><div class="seg" role="group">${['today','week','month'].map(k=>`<button data-a="range" data-v="${k}" aria-pressed="${R===k}">${T(k)}</button>`).join('')}</div><div class="grid2" style="grid-template-columns:repeat(3,1fr);gap:10px">${[[items.length,'visits'],[money(sp),'spent'],[mn>=60?`${(mn/60).toFixed(1)} h`:`${mn} ${T('min')}`,'parked']].map(([v,l])=>`<div class="card" style="padding:12px 10px"><b class="num" style="font-size:19px;display:block">${v}</b><span class="sm mut">${T(l)}</span></div>`).join('')}</div><div class="seg" style="margin:14px 0 10px">${[['chart','chart'],['table','table']].map(([k,i])=>`<button data-a="mode" data-v="${k}" aria-pressed="${S.mode===k}"><span class="row" style="justify-content:center;gap:6px">${ic(i)}${T(k)}</span></button>`).join('')}</div><div class="card"><b>${T('spend')}</b>${S.mode==='chart'?`<div class="bars" role="img" aria-label="${T('spend')}">${rows.map((r,i)=>`<div class="${i===hiI&&r[1]>0?'hi':''}"><i style="height:${Math.max(3,r[1]/mx*100)}%"></i><span>${r[0]}</span></div>`).join('')||`<p class="mut">—</p>`}</div>`:`<div style="margin-top:6px">${rows.map(r=>`<div class="kv"><span>${r[0]}</span><span class="num">${r[2]} ${T('min')} · <b style="color:var(--ink)">${money(r[1])}</b></span></div>`).join('')||`<p class="mut">—</p>`}</div>`}</div></div>${foot(btn(T('back'),'tab','activity','txt'))}`}},
+profile:()=>({tab:'profile',full:1,html:`<div class="body" style="padding-top:calc(var(--st,0px) + 14px)"><div class="row" style="gap:16px"><div class="avatar">MS</div><div><div class="neon" style="font-size:28px;margin:0">Maria Snow</div><div class="mut">${T('prSub')}</div></div></div><div class="list" style="margin-top:20px"><button class="item" data-a="go" data-v="vehicle"><span class="ico">${ic('car')}</span><span class="g"><b>${T('prV')}</b><span class="sm mut">${T('prVs')}</span></span>${ic('chev')}</button><button class="item" data-a="go" data-v="pay"><span class="ico">${ic('card')}</span><span class="g"><b>${T('prP')}</b><span class="sm mut">${T('prPs')}</span></span>${ic('chev')}</button><button class="item" data-a="go" data-v="stats"><span class="ico">${ic('chart')}</span><span class="g"><b>${T('prS')}</b><span class="sm mut">${T('prSs')}</span></span>${ic('chev')}</button><button class="item" data-a="go" data-v="search"><span class="ico pk">${ic('heart')}</span><span class="g"><b>${T('prF')}</b><span class="sm mut">${t('prFs',S.fav.length)}</span></span>${ic('chev')}</button></div><h3>${T('lang')}</h3><div class="lg">${['en','es','pt'].map(k=>`<button data-a="lang" data-v="${k}" aria-pressed="${S.lang===k}">${k.toUpperCase()}</button>`).join('')}</div><button class="btn txt" data-a="restart" style="margin-top:14px">${T('signOut')}</button><p class="sm dim" style="text-align:center">${T('ph')}</p></div>${tabs('profile')}`})
+};
+/* ---------- render ---------- */
+let timer;
+function render(anim=true){
+ document.documentElement.lang=S.lang;clearInterval(timer);
+ const sc=view.querySelector('.body'),pos=sc?sc.scrollTop:0,f=SC[S.scr]();
+ view.className='view'+(f.full?' full':'');if(!anim)view.style.animation='none';else view.style.animation='';
+ view.innerHTML=f.html;const b=view.querySelector('.body');if(b&&!anim)b.scrollTop=pos;
+ const qi=$('#q');if(qi&&S.focusQ){qi.focus();qi.setSelectionRange(qi.value.length,qi.value.length)}
+ document.title=`Parkin’go · ${S.scr}`;
+ if(S.scr==='trip'){timer=setInterval(()=>{S.prog=Math.min(1,S.prog+.02);const s=spot(S.spot);const tm=$('#tmap');if(tm)tm.innerHTML=mapSvg({route:s.id,p:S.prog});const pb=$('#pbar');if(pb)pb.style.width=S.prog*100+'%';const e=$('#etaT');if(e)e.textContent=eta(Math.max(1,Math.round(mins(s)*(1-S.prog))));if(S.prog>=1)clearInterval(timer)},400)}
+ if(S.sess)timer=timer||setInterval(()=>{},1e9);
+ if(S.sess&&S.scr!=='trip'){clearInterval(timer);timer=setInterval(()=>{document.querySelectorAll('[data-live]').forEach(e=>e.textContent=mmss(left()));const lb=$('#lbar');if(lb)lb.style.width=(100-left()/LIVE_DUR()*100)+'%'},1000)}
+ try{parent.postMessage({mr:'screen',v:S.scr},'*')}catch(e){}
+}
+const TABS=['home','activity','profile'];
+function go(s){if(!SC[s])return;if(TABS.includes(S.scr)||s===S.scr){}else S.stack.push(S.scr);if(TABS.includes(s))S.stack=[];S.scr=s;if(s==='trip'&&S.prog>=1)S.prog=0;render(true)}
+function toast(m){const old=$('.toast');if(old)old.remove();const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=m;$('#phone').appendChild(d);setTimeout(()=>d.remove(),1900)}
+function act(a,v){switch(a){
+ case 'go':go(v);break;
+ case 'back':S.scr=S.stack.pop()||'home';render(true);break;
+ case 'tab':S.stack=[];S.scr=v;render(true);break;
+ case 'start':S.stack=[];S.scr='home';render(true);break;
+ case 'veh':S.veh=v;render(false);break;
+ case 'spot':S.spot=v;S.bay=spot(v).bays[0];S.ext=0;S.stack=S.scr==='spot'?S.stack:[...S.stack,S.scr];S.scr='spot';render(true);break;
+ case 'fav':{const i=S.fav.indexOf(v);i<0?S.fav.push(v):S.fav.splice(i,1);render(false);toast(i<0?t('faved'):t('unfaved'));break}
+ case 'flt':S.flt=v;S.focusQ=0;render(false);break;
+ case 'bays':if(!isOpen(spot(S.spot)))return toast(t('isClosed'));go('bay');break;
+ case 'pickbay':S.bay=v;render(false);break;
+ case 'reserve':S.prog=0;S.step=0;go('route');break;
+ case 'step':S.step++;render(false);break;
+ case 'checkin':{S.sess={s:S.spot,bay:S.bay,t0:Date.now(),ext:0};S.rate=0;S.scr='session';S.stack=[];render(true);break}
+ case 'add':S.add=+v;render(false);break;
+ case 'extend':if(S.sess)S.sess.ext+=S.add;S.scr='session';S.stack=[];render(true);toast(t('exDone'));break;
+ case 'rate':S.rate=+v;render(false);break;
+ case 'end':{if(S.sess){const s=spot(S.sess.s),m=60+S.sess.ext;S.hist.unshift({id:S.hist.length+10,s:S.sess.s,d:0,m,a:s.r*m/60});S.sess=null}S.scr='done';S.stack=[];render(true);break}
+ case 'rc':S.rc=+v;go('receipt');break;
+ case 'range':S.range=v;render(false);break;
+ case 'mode':S.mode=v;render(false);break;
+ case 'lang':S.lang=v;render(false);try{parent.postMessage({mr:'lang',v},'*')}catch(e){}break;
+ case 'restart':S.sess=null;S.hist=SEED.map((h,i)=>({...h,id:i}));S.fav=['brk'];S.scr='intro';S.stack=[];render(true);break;
+}}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;act(el.dataset.a,el.dataset.v)});
+document.addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;S.focusQ=1;const ql=S.q.trim().toLowerCase();const list=SP.filter(s=>(!ql||s.n.toLowerCase().includes(ql))&&(S.flt==='all'||(S.flt==='fav'&&S.fav.includes(s.id))||(S.flt==='cov'&&s.cov)||(S.flt==='ev'&&s.ev))).sort((a,b)=>a.d-b.d);$('#res').innerHTML=list.map(spotRow).join('')||`<p class="mut">${T('none')}</p>`}});
+addEventListener('message',e=>{const d=e.data||{};if(d.mr==='go'){const m=d.v;if(m==='checkin'||m==='session'&&!S.sess){S.spot=S.spot||'brk'}if(['session','extend','checkout'].includes(m)&&!S.sess)S.sess={s:S.spot,bay:S.bay,t0:Date.now()-18*60*1000,ext:0};S.stack=[];if(m==='trip'){S.prog=.15}S.scr=SC[m]?m:'home';render(true)}
+ if(d.mr==='lang'&&L[d.v]){S.lang=d.v;render(false)}});
+function tick(){const el=$('#clock');if(el)el.textContent=new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',hour12:false,timeZone:'America/New_York'}).format(new Date())}tick();setInterval(tick,30000);
+if(q.get('veh')&&VEH[q.get('veh')])S.veh=q.get('veh');if(q.get('spot')&&spot(q.get('spot'))){S.spot=q.get('spot');S.bay=spot(S.spot).bays[0]}
+const s0=q.get('screen');
+if(s0&&SC[s0]){if(['session','extend','checkout'].includes(s0))S.sess={s:S.spot,bay:S.bay,t0:Date.now()-18*60*1000,ext:0};if(s0==='trip')S.prog=.3;if(q.get('rc'))S.rc=+q.get('rc');S.scr=s0}
+if(q.get('q'))S.q=q.get('q');if(q.get('flt'))S.flt=q.get('flt');if(q.get('range'))S.range=q.get('range');if(q.get('mode'))S.mode=q.get('mode');
+render(true);
+</script>
+</body>
+</html>
